@@ -8,6 +8,7 @@
 | React        | 19.x    | UI library                      |
 | TypeScript   | 5.9.x   | Type-safe JavaScript            |
 | Tailwind CSS | 4.x     | Utility-first CSS               |
+| Drizzle ORM  | 0.45.x  | SQLite database layer           |
 | Bun          | Latest  | Package manager & runtime       |
 
 ## Development Environment
@@ -26,6 +27,8 @@ bun build          # Production build
 bun start          # Start production server
 bun lint           # Run ESLint
 bun typecheck      # Run TypeScript type checking
+bun db:generate    # Generate Drizzle migrations
+bun db:migrate     # Run database migrations
 ```
 
 ## Project Configuration
@@ -51,6 +54,12 @@ bun typecheck      # Run TypeScript type checking
 - Uses `eslint-config-next`
 - Flat config format
 
+### Drizzle ORM (`drizzle.config.ts`)
+
+- SQLite dialect
+- Schema: `./src/db/schema.ts`
+- Migrations output: `./src/db/migrations`
+
 ## Key Dependencies
 
 ### Production Dependencies
@@ -59,7 +68,9 @@ bun typecheck      # Run TypeScript type checking
 {
   "next": "^16.1.3", // Framework
   "react": "^19.2.3", // UI library
-  "react-dom": "^19.2.3" // React DOM
+  "react-dom": "^19.2.3", // React DOM
+  "drizzle-orm": "^0.45.2", // ORM for database
+  "@kilocode/app-builder-db": "github:Kilo-Org/app-builder-db#main" // DB utilities
 }
 ```
 
@@ -74,7 +85,8 @@ bun typecheck      # Run TypeScript type checking
   "@tailwindcss/postcss": "^4.1.17",
   "tailwindcss": "^4.1.17",
   "eslint": "^9.39.1",
-  "eslint-config-next": "^16.0.0"
+  "eslint-config-next": "^16.0.0",
+  "drizzle-kit": "^0.31.10"
 }
 ```
 
@@ -83,6 +95,8 @@ bun typecheck      # Run TypeScript type checking
 ```
 /
 ├── .gitignore              # Git ignore rules
+├── .env.example            # Environment variable template
+├── drizzle.config.ts       # Drizzle ORM config
 ├── package.json            # Dependencies and scripts
 ├── bun.lock                # Bun lockfile
 ├── next.config.ts          # Next.js configuration
@@ -92,11 +106,18 @@ bun typecheck      # Run TypeScript type checking
 ├── public/                 # Static assets
 │   └── .gitkeep
 └── src/                    # Source code
-    └── app/                # Next.js App Router
-        ├── layout.tsx      # Root layout
-        ├── page.tsx        # Home page
-        ├── globals.css     # Global styles
-        └── favicon.ico     # Site icon
+    ├── app/                # Next.js App Router
+    │   ├── layout.tsx      # Root layout (includes Tracking)
+    │   ├── page.tsx        # Home page
+    │   ├── globals.css     # Global styles
+    │   └── favicon.ico     # Site icon
+    ├── components/         # Reusable components
+    │   └── Tracking.tsx    # Google Analytics + Meta Pixel
+    └── db/                 # Database layer (Drizzle)
+        ├── schema.ts       # Table definitions
+        ├── index.ts        # Database client
+        ├── migrate.ts      # Migration runner
+        └── migrations/     # Generated SQL migrations
 ```
 
 ## Technical Constraints
@@ -104,13 +125,19 @@ bun typecheck      # Run TypeScript type checking
 ### Starting Point
 
 - Minimal structure - expand as needed
-- No database by default (use recipe to add)
-- No authentication by default (add when needed)
+- Database schema can be extended in `src/db/schema.ts`
+- Tracking is opt-in via environment variables
 
 ### Browser Support
 
 - Modern browsers (ES2020+)
 - No IE11 support
+
+### Environment Variables
+
+- `NEXT_PUBLIC_GA_ID` - Google Analytics tracking ID
+- `NEXT_PUBLIC_META_PIXEL_ID` - Meta Pixel tracking ID
+- `DB_URL` / `DB_TOKEN` - Provided automatically by sandbox
 
 ## Performance Considerations
 
@@ -123,11 +150,13 @@ bun typecheck      # Run TypeScript type checking
 
 - Tree-shaking enabled by default
 - Tailwind CSS purges unused styles
+- Tracking scripts load with `afterInteractive` strategy
 
 ### Core Web Vitals
 
 - Server Components reduce client JavaScript
 - Streaming and Suspense for better UX
+- Tracking script loading is non-blocking
 
 ## Deployment
 
@@ -136,8 +165,8 @@ bun typecheck      # Run TypeScript type checking
 - Server-rendered pages by default
 - Can be configured for static export
 
-### Environment Variables
+### Database
 
-- None required for base template
-- Add as needed for features
-- Use `.env.local` for local development
+- SQLite database file managed via app-builder-db
+- Migrations run automatically in sandbox after push
+- Use `bun db:generate` to create migrations after schema changes

@@ -4,7 +4,7 @@
 
 **Template Status**: ✅ Ready for development
 
-The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. It's ready for AI-assisted expansion to build any type of application.
+The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. Database support and ads/tracking integrations are scaffolded and ready.
 
 ## Recently Completed
 
@@ -14,6 +14,8 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] ESLint configuration
 - [x] Memory bank documentation
 - [x] Recipe system for common features
+- [x] Database support (Drizzle ORM + SQLite)
+- [x] Ads/tracking integration (Google Analytics + Meta Pixel)
 
 ## Current Structure
 
@@ -22,6 +24,12 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 | `src/app/page.tsx` | Home page | ✅ Ready |
 | `src/app/layout.tsx` | Root layout | ✅ Ready |
 | `src/app/globals.css` | Global styles | ✅ Ready |
+| `src/components/Tracking.tsx` | Tracking component (GA/Meta Pixel) | ✅ Ready |
+| `src/db/schema.ts` | Database schema | ✅ Ready |
+| `src/db/index.ts` | Database client | ✅ Ready |
+| `src/db/migrate.ts` | Migration runner | ✅ Ready |
+| `drizzle.config.ts` | Drizzle ORM config | ✅ Ready |
+| `.env.example` | Environment variable template | ✅ Ready |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
 
 ## Current Focus
@@ -68,6 +76,10 @@ export async function GET() {
 }
 ```
 
+### To enable tracking:
+
+Set `NEXT_PUBLIC_GA_ID` and/or `NEXT_PUBLIC_META_PIXEL_ID` in your environment.
+
 ## Available Recipes
 
 | Recipe | File | Use Case |
@@ -84,4 +96,5 @@ export async function GET() {
 
 | Date | Changes |
 |------|---------|
+| 2026-07-03 | Added database integration, ads/tracking, updated memory bank |
 | Initial | Template created with base setup |
